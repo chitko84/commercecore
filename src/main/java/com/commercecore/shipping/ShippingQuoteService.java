@@ -1,0 +1,3 @@
+package com.commercecore.shipping;
+import com.commercecore.config.CheckoutProperties;import org.springframework.stereotype.Service;import java.math.*;
+@Service public class ShippingQuoteService{private final CheckoutProperties properties;public ShippingQuoteService(CheckoutProperties p){properties=p;}public Quote quote(ShippingServiceLevel level){if(level==null)throw new IllegalArgumentException();return switch(level){case STANDARD->new Quote(money(properties.standardShippingFee()),properties.standardDeliveryDays());case EXPRESS->new Quote(money(properties.expressShippingFee()),properties.expressDeliveryDays());};}private static BigDecimal money(BigDecimal v){return v.setScale(2,RoundingMode.HALF_UP);}public record Quote(BigDecimal fee,int estimatedDeliveryDays){}}

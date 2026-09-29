@@ -1,0 +1,1 @@
+package com.commercecore.order;import org.springframework.data.jpa.repository.JpaRepository;import java.util.*;public interface OrderAddressRepository extends JpaRepository<OrderAddress,UUID>{List<OrderAddress>findAllByOrderIdOrderByTypeAsc(UUID orderId);}

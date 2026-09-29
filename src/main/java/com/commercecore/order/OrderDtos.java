@@ -1,0 +1,12 @@
+package com.commercecore.order;import com.commercecore.promotion.PromotionType;import com.commercecore.shipping.*;import jakarta.validation.constraints.*;import java.math.BigDecimal;import java.time.Instant;import java.util.*;
+public final class OrderDtos{private OrderDtos(){}public record CheckoutRequest(@NotNull UUID shippingAddressId,UUID billingAddressId,@NotNull ShippingServiceLevel shippingServiceLevel){}
+ public record AttributeSnapshot(String name,String value,int displayOrder){}public record ItemSnapshot(UUID id,UUID sourceProductId,UUID sourceVariantId,String productName,String sku,int quantity,BigDecimal unitPrice,BigDecimal lineSubtotal,List<AttributeSnapshot>attributes){}
+ public record AddressSnapshot(OrderAddressType type,UUID sourceAddressId,String recipientName,String phone,String addressLine1,String addressLine2,String city,String stateRegion,String postalCode,String countryCode){}
+ public record PromotionSnapshot(UUID id,String code,String name,PromotionType type,BigDecimal merchandiseDiscount,boolean freeShipping){}
+ public record StatusEvent(OrderStatus fromStatus,OrderStatus toStatus,UUID actorUserId,String reason,String reference,Instant occurredAt){}
+ public record TrackingEvent(TrackingStatus status,String location,String note,Instant occurredAt){}public record ShipmentResponse(UUID id,ShippingServiceLevel serviceLevel,String carrier,String trackingNumber,Instant estimatedDeliveryAt,Instant shippedAt,Instant deliveredAt,List<TrackingEvent>events){}
+ public record OrderResponse(UUID id,String orderNumber,OrderStatus status,List<ItemSnapshot>items,List<AddressSnapshot>addresses,BigDecimal subtotal,BigDecimal merchandiseDiscount,BigDecimal discountedMerchandiseTotal,BigDecimal shippingFeeBeforeDiscount,BigDecimal shippingDiscount,BigDecimal shippingFee,BigDecimal taxAmount,BigDecimal grandTotal,PromotionSnapshot promotion,ShippingServiceLevel shippingServiceLevel,int shippingEstimatedDays,Instant reservationExpiresAt,Instant createdAt,Instant updatedAt,List<StatusEvent>statusHistory,ShipmentResponse shipment){}
+ public record PageResponse<T>(List<T>content,int page,int size,long totalElements,int totalPages,boolean first,boolean last){}
+ public record ShipmentRequest(@NotBlank@Size(max=100)String carrier,@NotBlank@Pattern(regexp="[A-Za-z0-9][A-Za-z0-9._/-]{2,99}")String trackingNumber,Instant estimatedDeliveryAt){}
+ public record TrackingEventRequest(@NotNull TrackingStatus status,@Size(max=160)String location,@Size(max=500)String note,@NotNull Instant occurredAt){}
+}

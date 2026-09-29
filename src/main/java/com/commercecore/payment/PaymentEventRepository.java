@@ -1,0 +1,1 @@
+package com.commercecore.payment;import org.springframework.data.jpa.repository.*;import java.util.*;public interface PaymentEventRepository extends JpaRepository<PaymentEvent,UUID>{List<PaymentEvent>findAllByPaymentIdOrderByOccurredAtAsc(UUID id);}

@@ -1,0 +1,20 @@
+app:
+  payment:
+    timeout: 100ms
+    max-retries: 2
+    retry-delay: 1ms
+    circuit-failure-threshold: 2
+    circuit-open-duration: 2s
+  security:
+    jwt-secret: test-only-signing-secret-that-is-at-least-thirty-two-bytes
+  email:
+    mode: development
+
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+  flyway:
+    enabled: true
+    locations: classpath:db/migration

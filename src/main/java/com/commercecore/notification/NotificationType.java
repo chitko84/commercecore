@@ -1,0 +1,16 @@
+package com.commercecore.notification;
+
+public enum NotificationType {
+    WELCOME,
+    PASSWORD_CHANGED,
+    PASSWORD_RESET,
+    ORDER_CREATED,
+    ORDER_CONFIRMED,
+    ORDER_PROCESSING,
+    ORDER_SHIPPED,
+    ORDER_DELIVERED,
+    ORDER_CANCELLED,
+    PAYMENT_SUCCEEDED,
+    PAYMENT_FAILED,
+    REFUND_COMPLETED
+}

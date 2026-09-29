@@ -1,0 +1,1 @@
+package com.commercecore.shipping;import org.springframework.data.jpa.repository.JpaRepository;import java.util.*;public interface ShipmentTrackingEventRepository extends JpaRepository<ShipmentTrackingEvent,UUID>{List<ShipmentTrackingEvent>findAllByShipmentIdOrderByOccurredAtAscIdAsc(UUID shipmentId);}

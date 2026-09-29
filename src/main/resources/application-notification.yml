@@ -1,0 +1,43 @@
+spring:
+  application:
+    name: notification-service
+  main:
+    web-application-type: servlet
+  datasource:
+    url: ${NOTIFICATION_DB_URL:jdbc:postgresql://localhost:5433/notifications}
+    username: ${NOTIFICATION_DB_USERNAME:notification}
+    password: ${NOTIFICATION_DB_PASSWORD}
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+  flyway:
+    locations: classpath:db/notification-migration
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+    consumer:
+      auto-offset-reset: earliest
+      enable-auto-commit: false
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+    producer:
+      acks: all
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+server:
+  port: ${NOTIFICATION_SERVER_PORT:8081}
+app:
+  security:
+    jwt-secret: ${JWT_SIGNING_SECRET}
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      probes:
+        enabled: true
+logging:
+  pattern:
+    level: "%5p [service=notification-service correlationId=%X{traceId:-} eventId=%X{eventId:-}]"

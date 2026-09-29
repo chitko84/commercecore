@@ -1,0 +1,3 @@
+package com.commercecore.wishlist;import com.commercecore.cart.CartLineStatus;import jakarta.validation.constraints.NotNull;import java.math.BigDecimal;import java.time.Instant;import java.util.*;
+public final class WishlistDtos{private WishlistDtos(){}public record AddRequest(@NotNull UUID productId,UUID variantId){}public record MoveRequest(@jakarta.validation.constraints.Min(1)@jakarta.validation.constraints.Max(99)int quantity){}public record ItemResponse(UUID id,UUID productId,UUID variantId,String productName,String sku,BigDecimal currentPrice,CartLineStatus status,Instant createdAt){}public record WishlistResponse(List<ItemResponse> items){}
+}

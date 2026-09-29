@@ -1,0 +1,24 @@
+# Test profile. Deliberately has NO fixed datasource: integration tests
+# that need a real database use Testcontainers with Spring Boot's
+# @ServiceConnection, which supplies spring.datasource.* dynamically at
+# test runtime. Tests that don't need a database (e.g. @WebMvcTest
+# slices for the error-handling foundation) don't touch this at all.
+
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+
+management:
+  endpoint:
+    health:
+      show-details: always
+
+logging:
+  level:
+    com.commercecore: DEBUG
+    org.testcontainers: INFO

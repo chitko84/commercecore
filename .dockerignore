@@ -1,0 +1,16 @@
+.git
+.github
+.dependency-classes
+.dependency-flat.jar
+.freebuff
+.m2-cache
+.scratch
+.env
+build
+docs
+frontend
+infra
+observability
+target
+*.jpg
+*.log

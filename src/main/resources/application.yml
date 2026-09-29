@@ -1,0 +1,89 @@
+# Common configuration shared by all profiles. Profile-specific files
+# (application-dev.yml / application-test.yml / application-prod.yml)
+# override or add to this. Active profile is controlled by the
+# SPRING_PROFILES_ACTIVE environment variable -- no default is forced
+# here so misconfiguration fails loudly instead of silently picking dev.
+
+spring:
+  application:
+    name: commercecore
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+    producer:
+      acks: all
+      properties:
+        enable.idempotence: true
+        spring.json.add.type.headers: false
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      timeout: ${REDIS_TIMEOUT:500ms}
+      repositories:
+        enabled: false
+
+server:
+  port: ${SERVER_PORT:8080}
+
+# --- Actuator: expose only health at this stage (Phase 1 foundation).
+# Details are hidden by default; profiles may relax this for local dev.
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      show-details: never
+      probes:
+        enabled: true
+
+# --- OpenAPI / Swagger ---
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+  api-docs:
+    path: /v3/api-docs
+
+# --- Logging: include the request correlation/trace id (see
+# CorrelationIdFilter) in every log line. ---
+logging:
+  pattern:
+    level: "%5p [service=${spring.application.name} correlationId=%X{traceId:-}]"
+
+app:
+  payment:
+    timeout: ${PAYMENT_PROVIDER_TIMEOUT:5s}
+    max-retries: ${PAYMENT_PROVIDER_MAX_RETRIES:1}
+    retry-delay: ${PAYMENT_PROVIDER_RETRY_DELAY:100ms}
+    circuit-failure-threshold: ${PAYMENT_CIRCUIT_FAILURE_THRESHOLD:5}
+    circuit-open-duration: ${PAYMENT_CIRCUIT_OPEN_DURATION:30s}
+  events:
+    enabled: ${EVENTS_ENABLED:false}
+    batch-size: ${OUTBOX_BATCH_SIZE:50}
+    poll-interval: ${OUTBOX_POLL_INTERVAL:1000}
+    retention: ${OUTBOX_RETENTION:30d}
+  notifications:
+    async: ${ASYNC_NOTIFICATIONS:false}
+  cache:
+    enabled: ${CATALOG_CACHE_ENABLED:false}
+    ttl: ${CATALOG_CACHE_TTL:5m}
+  checkout:
+    standard-shipping-fee: ${STANDARD_SHIPPING_FEE:5.00}
+    standard-delivery-days: ${STANDARD_DELIVERY_DAYS:5}
+    express-shipping-fee: ${EXPRESS_SHIPPING_FEE:15.00}
+    express-delivery-days: ${EXPRESS_DELIVERY_DAYS:2}
+    tax-rate-percent: ${TAX_RATE_PERCENT:6.00}
+    reservation-ttl: ${CHECKOUT_RESERVATION_TTL:15m}
+    expiry-scan-interval: ${ORDER_EXPIRY_SCAN_INTERVAL:1m}
+  security:
+    jwt-secret: ${JWT_SIGNING_SECRET}
+    access-token-ttl: ${ACCESS_TOKEN_TTL:15m}
+    refresh-token-ttl: ${REFRESH_TOKEN_TTL:30d}
+    verification-token-ttl: ${VERIFICATION_TOKEN_TTL:24h}
+    password-reset-token-ttl: ${PASSWORD_RESET_TOKEN_TTL:45m}
+    maximum-failed-logins: ${MAXIMUM_FAILED_LOGINS:5}
+    login-lock-duration: ${LOGIN_LOCK_DURATION:20m}
+    allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:3000}

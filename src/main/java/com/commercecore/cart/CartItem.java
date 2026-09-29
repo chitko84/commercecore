@@ -1,0 +1,7 @@
+package com.commercecore.cart;
+import com.commercecore.product.*;import jakarta.persistence.*;import java.time.Instant;import java.util.UUID;
+@Entity@Table(name="cart_items")public class CartItem{
+ @Id@GeneratedValue(strategy=GenerationType.UUID)private UUID id;@ManyToOne(fetch=FetchType.LAZY,optional=false)@JoinColumn(name="cart_id",nullable=false)private Cart cart;@ManyToOne(fetch=FetchType.LAZY,optional=false)@JoinColumn(name="product_id",nullable=false)private Product product;@ManyToOne(fetch=FetchType.LAZY)@JoinColumn(name="variant_id")private ProductVariant variant;@Column(nullable=false)private int quantity;@Column(name="created_at",nullable=false,updatable=false)private Instant createdAt;@Column(name="updated_at",nullable=false)private Instant updatedAt;@Version@Column(nullable=false)private long version;
+ protected CartItem(){}public CartItem(Cart c,Product p,ProductVariant v,int q){cart=c;product=p;variant=v;changeQuantity(q);}public void changeQuantity(int q){if(q<1||q>99)throw new IllegalArgumentException();quantity=q;}@PrePersist void create(){Instant now=Instant.now();createdAt=now;updatedAt=now;}@PreUpdate void touch(){updatedAt=Instant.now();}
+ public UUID getId(){return id;}public Cart getCart(){return cart;}public Product getProduct(){return product;}public ProductVariant getVariant(){return variant;}public int getQuantity(){return quantity;}public Instant getCreatedAt(){return createdAt;}public Instant getUpdatedAt(){return updatedAt;}
+}

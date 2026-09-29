@@ -1,0 +1,37 @@
+# Local development profile. Before `docker compose up -d`, copy
+# .env.example to .env and provide a non-sensitive development DB_PASSWORD.
+# Compose reads .env automatically; load the same values into the application
+# process environment and run with SPRING_PROFILES_ACTIVE=dev.
+# Override any of these via environment variables for your machine.
+
+spring:
+  datasource:
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:commercecore}
+    username: ${DB_USERNAME:commercecore}
+    password: ${DB_PASSWORD}
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+    properties:
+      hibernate:
+        format_sql: true
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+
+app:
+  email:
+    mode: ${EMAIL_MODE:development}
+    from: ${EMAIL_FROM:no-reply@localhost}
+    frontend-base-url: ${FRONTEND_BASE_URL:http://localhost:3000}
+    development-outbox: ${EMAIL_DEVELOPMENT_OUTBOX:build/dev-mail-outbox.txt}
+
+management:
+  endpoint:
+    health:
+      show-details: when-authorized
+
+logging:
+  level:
+    com.commercecore: DEBUG

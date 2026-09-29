@@ -1,0 +1,1 @@
+package com.commercecore.payment;import java.math.BigDecimal;public interface PaymentProvider{Result authorize(PaymentMethod method,BigDecimal amount,String key,String token);Result capture(String key);Result refund(BigDecimal amount,String key);Result lookup(String key);record Result(boolean success,boolean retryable,boolean uncertain,String reference,String code){} }

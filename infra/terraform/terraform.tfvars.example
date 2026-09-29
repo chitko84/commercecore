@@ -1,0 +1,17 @@
+aws_region  = "ap-southeast-1"
+environment = "dev"
+smtp_host = "smtp.example.com"
+smtp_port = 587
+smtp_username = "commercecore"
+email_from = "no-reply@example.com"
+frontend_base_url = "https://commerce.example.com"
+public_hostname = "commerce.example.com"
+route53_zone_id = "Z0123456789EXAMPLE"
+certificate_arn = "arn:aws:acm:ap-southeast-1:123456789012:certificate/00000000-0000-0000-0000-000000000000"
+
+container_images = {
+  core         = "123456789012.dkr.ecr.ap-southeast-1.amazonaws.com/commercecore-dev-core:COMMIT_SHA"
+  notification = "123456789012.dkr.ecr.ap-southeast-1.amazonaws.com/commercecore-dev-notification:COMMIT_SHA"
+  gateway      = "123456789012.dkr.ecr.ap-southeast-1.amazonaws.com/commercecore-dev-gateway:COMMIT_SHA"
+  frontend     = "123456789012.dkr.ecr.ap-southeast-1.amazonaws.com/commercecore-dev-frontend:COMMIT_SHA"
+}

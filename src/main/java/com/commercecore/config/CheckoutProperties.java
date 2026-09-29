@@ -1,0 +1,4 @@
+package com.commercecore.config;
+import jakarta.validation.constraints.*;import org.springframework.boot.context.properties.ConfigurationProperties;import org.springframework.validation.annotation.Validated;import java.math.BigDecimal;import java.time.Duration;
+@Validated@ConfigurationProperties("app.checkout")
+public record CheckoutProperties(@NotNull@DecimalMin("0.00")BigDecimal standardShippingFee,@Min(1)int standardDeliveryDays,@NotNull@DecimalMin("0.00")BigDecimal expressShippingFee,@Min(1)int expressDeliveryDays,@NotNull@DecimalMin("0.00")@DecimalMax("100.00")BigDecimal taxRatePercent,@NotNull Duration reservationTtl){public CheckoutProperties{if(reservationTtl!=null&&(reservationTtl.isZero()||reservationTtl.isNegative()))throw new IllegalArgumentException("reservation TTL must be positive");}}
