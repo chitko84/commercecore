@@ -10,6 +10,9 @@
 - Completed the React frontend audit and real API integration, including auth
   return URLs, role-protected routes, safe logout, network/timeout handling, and
   responsive navigation fixes.
+- Completed the responsive follow-up audit at 320px, 375px, and 768px. The
+  storefront now uses a role-aware right-side mobile drawer, adaptive grids,
+  mobile-safe forms/cart rows, and element-level overflow regression checks.
 - Added deterministic Playwright coverage for public, customer, checkout,
   review-moderation, admin, logout, RBAC, and five target viewport scenarios.
 - Fixed gateway forwarding of encoded report query parameters and added a
@@ -23,7 +26,8 @@
 
 - Frontend tests: **23 passed** in 8 files.
 - Backend tests: **89 passed**, 0 failures, 0 errors, 0 skipped.
-- Playwright E2E/system tests: **7 passed** in Chromium.
+- Playwright E2E/system tests: **7 passed** in Chromium, including responsive
+  coverage for home, catalog, product, login, cart, checkout, and admin pages.
 - ESLint: PASS with 0 errors and 7 non-blocking Fast Refresh warnings.
 - TypeScript check and Vite production build: PASS.
 - Docker Compose production-like stack: nine services running; every service

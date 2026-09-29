@@ -14,6 +14,22 @@ async function login(page: Page, account: { email: string; password: string }) {
   await expect(page).toHaveURL(/\/(account|admin)/);
 }
 
+async function expectNoHorizontalOverflow(page: Page, label: string) {
+  const result = await page.evaluate(() => {
+    const overflow = document.documentElement.scrollWidth - document.documentElement.clientWidth;
+    const offenders = Array.from(document.querySelectorAll<HTMLElement>('body *'))
+      .filter((element) => {
+        const rect = element.getBoundingClientRect();
+        return rect.width > 0 && (rect.right > window.innerWidth + 1 || rect.left < -1);
+      })
+      .slice(0, 5)
+      .map((element) => `${element.tagName.toLowerCase()}.${element.className}`);
+    return { overflow, offenders };
+  });
+  expect(result.overflow, `${label}; overflowing elements: ${result.offenders.join(', ')}`).toBeLessThanOrEqual(1);
+  expect(result.offenders, `${label}; elements extend beyond viewport`).toEqual([]);
+}
+
 test.describe.configure({ mode: 'serial' });
 
 test('application loads and the public storefront is responsive at all target viewports', async ({ page }) => {
@@ -23,6 +39,7 @@ test('application loads and the public storefront is responsive at all target vi
   });
 
   const viewports = [
+    { width: 320, height: 568 },
     { width: 375, height: 667 },
     { width: 390, height: 844 },
     { width: 768, height: 1024 },
@@ -34,9 +51,32 @@ test('application loads and the public storefront is responsive at all target vi
     await page.goto('/');
     await expect(page.getByRole('heading', { level: 1 })).toContainText('Technology');
     await expect(page.locator('img[alt="Premium over-ear headphones on a dark background"]')).toBeVisible();
-    const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
-    expect(overflow, `horizontal overflow at ${viewport.width}x${viewport.height}`).toBeLessThanOrEqual(1);
+    await expectNoHorizontalOverflow(page, `home overflow at ${viewport.width}x${viewport.height}`);
   }
+
+
+  for (const viewport of [{ width: 320, height: 568 }, { width: 375, height: 667 }, { width: 768, height: 1024 }]) {
+    await page.setViewportSize(viewport);
+    for (const route of ['/catalog', '/products/bassline-portable-speaker', '/login']) {
+      await page.goto(route);
+      await expect(page.locator('main')).toBeVisible();
+      await expectNoHorizontalOverflow(page, `${route} overflow at ${viewport.width}x${viewport.height}`);
+    }
+  }
+
+  await page.setViewportSize({ width: 320, height: 568 });
+  await page.goto('/');
+  await page.getByRole('button', { name: 'Open menu' }).click();
+  const drawer = page.getByRole('dialog', { name: 'Navigation' });
+  await expect(drawer).toBeVisible();
+  await expect(drawer.getByRole('link', { name: 'Home' })).toBeVisible();
+  await expect(drawer.getByRole('link', { name: 'Shop', exact: true })).toBeVisible();
+  await expect(drawer.getByRole('heading', { name: 'Account' })).toBeVisible();
+  await expect(drawer.getByRole('heading', { name: 'Admin' })).toHaveCount(0);
+  const drawerWidth = await drawer.evaluate((element) => element.getBoundingClientRect().width);
+  expect(drawerWidth).toBeLessThanOrEqual(320);
+  expect(drawerWidth).toBeLessThanOrEqual(320 * 0.85 + 1);
+  await page.getByRole('button', { name: 'Close menu' }).click();
 
   await page.goto('/catalog?q=Aurora');
   await expect(page.getByText('Aurora Wireless Headphones')).toBeVisible();
@@ -95,6 +135,10 @@ test('customer completes a real cart, promotion, checkout and sandbox payment fl
 
   await page.goto('/cart');
   await expect(page.getByText('Bassline Portable Speaker')).toBeVisible();
+  for (const viewport of [{ width: 320, height: 568 }, { width: 375, height: 667 }, { width: 768, height: 1024 }]) {
+    await page.setViewportSize(viewport);
+    await expectNoHorizontalOverflow(page, `cart overflow at ${viewport.width}x${viewport.height}`);
+  }
   await page.getByLabel('Coupon code').fill('SAVE10');
   await page.getByRole('button', { name: 'Apply' }).click();
   await expect(page.getByText('SAVE10', { exact: true })).toBeVisible();
@@ -102,6 +146,10 @@ test('customer completes a real cart, promotion, checkout and sandbox payment fl
 
   await expect(page.getByRole('heading', { name: 'Checkout' })).toBeVisible();
   await expect(page.getByText(/Sandbox payments/)).toBeVisible();
+  for (const viewport of [{ width: 320, height: 568 }, { width: 375, height: 667 }, { width: 768, height: 1024 }]) {
+    await page.setViewportSize(viewport);
+    await expectNoHorizontalOverflow(page, `checkout overflow at ${viewport.width}x${viewport.height}`);
+  }
   await page.getByRole('button', { name: /Place order/ }).click();
   await expect(page.getByRole('heading', { name: 'Order confirmed' })).toBeVisible({ timeout: 30_000 });
 
@@ -175,12 +223,11 @@ test('admin dashboard and privileged operational routes load through the gateway
     await expect(page.getByRole('heading', { name: heading })).toBeVisible();
   }
 
-  for (const viewport of [{ width: 375, height: 667 }, { width: 768, height: 1024 }, { width: 1920, height: 1080 }]) {
+  for (const viewport of [{ width: 320, height: 568 }, { width: 375, height: 667 }, { width: 768, height: 1024 }, { width: 1920, height: 1080 }]) {
     await page.setViewportSize(viewport);
     await page.goto('/admin');
     await expect(page.getByRole('heading', { name: 'Dashboard' })).toBeVisible();
-    const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
-    expect(overflow, `admin horizontal overflow at ${viewport.width}x${viewport.height}`).toBeLessThanOrEqual(1);
+    await expectNoHorizontalOverflow(page, `admin overflow at ${viewport.width}x${viewport.height}`);
   }
 });
 

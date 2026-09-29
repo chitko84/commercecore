@@ -112,7 +112,7 @@
 /* ------------------------------------------------------------------ */
 .product-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(min(240px, 100%), 1fr));
   gap: var(--s-5);
 }
 
@@ -192,6 +192,12 @@
   grid-template-columns: 1fr;
   gap: var(--s-6);
   padding-block: var(--s-8);
+}
+
+.catalog-layout > *,
+.product-detail > *,
+.cart-layout > * {
+  min-width: 0;
 }
 
 @media (min-width: 900px) {
@@ -326,6 +332,7 @@
   font-size: var(--fs-3xl);
   letter-spacing: -0.03em;
   margin: var(--s-2) 0 var(--s-3);
+  overflow-wrap: anywhere;
 }
 
 .product-info__price {
@@ -560,6 +567,16 @@
   justify-content: space-between;
   padding: var(--s-2) 0;
   font-size: var(--fs-sm);
+  gap: var(--s-3);
+}
+
+.summary-row > :first-child {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.summary-row > :last-child {
+  flex: 0 0 auto;
 }
 
 .summary-row--total {
@@ -657,6 +674,7 @@
   padding: var(--s-4);
   cursor: pointer;
   margin-bottom: var(--s-3);
+  gap: var(--s-3);
 }
 
 .shipping-option.is-selected {
@@ -730,7 +748,7 @@
 /* CSV download */
 .csv-downloads {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(min(200px, 100%), 1fr));
   gap: var(--s-3);
   margin-top: var(--s-6);
 }
@@ -776,4 +794,66 @@
   border: 1px solid #fde68a;
   border-radius: var(--r-full);
   padding: var(--s-1) var(--s-3);
+}
+
+@media (max-width: 599px) {
+  .hero__inner {
+    padding-block: var(--s-12) var(--s-10);
+  }
+
+  .hero__title {
+    font-size: clamp(2rem, 12vw, 3rem);
+  }
+
+  .feature-strip,
+  .product-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .catalog-filters,
+  .order-summary {
+    padding: var(--s-4);
+  }
+
+  .filter-group .flex {
+    flex-wrap: wrap;
+  }
+
+  .filter-group .input {
+    flex: 1 1 7rem;
+    min-width: 0;
+  }
+
+  .cart-line {
+    grid-template-columns: 3.5rem minmax(0, 1fr);
+    gap: var(--s-3);
+    padding: var(--s-3);
+  }
+
+  .cart-line__media {
+    width: 3.5rem;
+    height: 3.5rem;
+  }
+
+  .cart-line__right {
+    grid-column: 1 / -1;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+  }
+
+  .checkout-steps {
+    align-items: flex-start;
+  }
+
+  .shipping-option {
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .rating-bars {
+    min-width: 0;
+    width: 100%;
+  }
 }

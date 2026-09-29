@@ -3,6 +3,9 @@
 CommerceCore's planned implementation and validation work is complete. There
 is **no Phase 11**.
 
+The follow-up responsive audit and mobile navigation redesign are complete;
+the expanded Playwright suite passes at 320px, 375px, and 768px.
+
 One required closeout check remains because the supplied workspace contains no
 `.git` metadata:
 

@@ -65,7 +65,7 @@ export default function CatalogPage() {
 
   return (
     <div className="container catalog-layout">
-      <aside className="catalog-filters">
+      <aside className="catalog-filters" id="categories">
         <h3>Filters</h3>
         <form onSubmit={submitSearch}>
           <div className="filter-group">

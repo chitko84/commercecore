@@ -1,7 +1,8 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, NavLink, Outlet, useNavigate } from 'react-router-dom';
 import {
-  Bell, Heart, LayoutDashboard, LogOut, Menu, Package, ShoppingBag, User, X, Star,
+  Bell, Grid3X3, Heart, Home, LayoutDashboard, LogIn, LogOut, Menu, Package,
+  Settings, ShoppingBag, Store, User, UserPlus, X, Star,
 } from 'lucide-react';
 import { useAuth } from '../lib/auth';
 import { cartApi, notificationsApi } from '../lib/api';
@@ -87,11 +88,36 @@ function UserMenu() {
 }
 
 export default function PublicLayout() {
+  const { status, profile, logout } = useAuth();
   const cartCount = useCartCount();
   const unread = useUnreadNotifications();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [search, setSearch] = useState('');
   const navigate = useNavigate();
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    if (!mobileOpen) return;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    closeButtonRef.current?.focus();
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setMobileOpen(false);
+    };
+    window.addEventListener('keydown', closeOnEscape);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener('keydown', closeOnEscape);
+    };
+  }, [mobileOpen]);
+
+  const closeMobile = () => setMobileOpen(false);
+
+  const signOut = () => {
+    closeMobile();
+    navigate('/', { replace: true });
+    void logout();
+  };
 
   const submitSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -166,41 +192,75 @@ export default function PublicLayout() {
       </header>
 
       {mobileOpen && (
-        <div className="mobile-nav" role="dialog" aria-modal="true">
-          <div className="mobile-nav__head">
-            <Link to="/" className="logo" onClick={() => setMobileOpen(false)}>
-              <span className="logo__mark">
-                <Star size={16} fill="currentColor" />
-              </span>
-              <span>CommerceCore</span>
-            </Link>
-            <button className="nav-toggle" onClick={() => setMobileOpen(false)} aria-label="Close menu">
-              <X size={22} />
-            </button>
-          </div>
-          <form onSubmit={submitSearch}>
-            <input
-              className="input"
-              type="search"
-              placeholder="Search products…"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-            />
-          </form>
-          <nav aria-label="Mobile">
-            <Link className="mobile-nav__link" to="/catalog" onClick={() => setMobileOpen(false)}>
-              Shop all
-            </Link>
-            <Link className="mobile-nav__link" to="/wishlist" onClick={() => setMobileOpen(false)}>
-              Wishlist
-            </Link>
-            <Link className="mobile-nav__link" to="/account" onClick={() => setMobileOpen(false)}>
-              My account
-            </Link>
-            <Link className="mobile-nav__link" to="/cart" onClick={() => setMobileOpen(false)}>
-              Cart
-            </Link>
-          </nav>
+        <div className="mobile-nav-overlay" onMouseDown={closeMobile}>
+          <aside
+            className="mobile-nav"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="mobile-navigation-title"
+            onMouseDown={(event) => event.stopPropagation()}
+          >
+            <div className="mobile-nav__head">
+              <Link to="/" className="logo" onClick={closeMobile}>
+                <span className="logo__mark">
+                  <Star size={16} fill="currentColor" />
+                </span>
+                <span>CommerceCore</span>
+              </Link>
+              <button ref={closeButtonRef} className="mobile-nav__close" onClick={closeMobile} aria-label="Close menu">
+                <X size={22} />
+              </button>
+            </div>
+
+            <form onSubmit={submitSearch} role="search" className="mobile-nav__search">
+              <label className="sr-only" htmlFor="mobile-product-search">Search products</label>
+              <input
+                id="mobile-product-search"
+                className="input"
+                type="search"
+                placeholder="Search products…"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+              />
+            </form>
+
+            <nav aria-label="Mobile navigation" className="mobile-nav__content">
+              <section className="mobile-nav__section">
+                <h2 id="mobile-navigation-title" className="mobile-nav__title">Navigation</h2>
+                <Link className="mobile-nav__link" to="/" onClick={closeMobile}><Home size={19} /> Home</Link>
+                <Link className="mobile-nav__link" to="/catalog" onClick={closeMobile}><Store size={19} /> Shop</Link>
+                <Link className="mobile-nav__link" to="/catalog#categories" onClick={closeMobile}><Grid3X3 size={19} /> Categories</Link>
+                <Link className="mobile-nav__link" to="/account/orders" onClick={closeMobile}><Package size={19} /> Orders</Link>
+                <Link className="mobile-nav__link" to="/cart" onClick={closeMobile}>
+                  <ShoppingBag size={19} /> Cart
+                  {cartCount > 0 && <span className="mobile-nav__badge">{cartCount}</span>}
+                </Link>
+              </section>
+
+              <section className="mobile-nav__section">
+                <h2 className="mobile-nav__title">Account</h2>
+                {status === 'authenticated' && profile ? (
+                  <>
+                    <Link className="mobile-nav__link" to="/account" onClick={closeMobile}><User size={19} /> Profile</Link>
+                    <Link className="mobile-nav__link" to="/account/password" onClick={closeMobile}><Settings size={19} /> Settings</Link>
+                    <button className="mobile-nav__link mobile-nav__link--button" onClick={signOut}><LogOut size={19} /> Logout</button>
+                  </>
+                ) : (
+                  <>
+                    <Link className="mobile-nav__link" to="/login" onClick={closeMobile}><LogIn size={19} /> Sign in</Link>
+                    <Link className="mobile-nav__link" to="/register" onClick={closeMobile}><UserPlus size={19} /> Create account</Link>
+                  </>
+                )}
+              </section>
+
+              {profile?.role === 'ADMIN' && (
+                <section className="mobile-nav__section">
+                  <h2 className="mobile-nav__title">Admin</h2>
+                  <Link className="mobile-nav__link" to="/admin" onClick={closeMobile}><LayoutDashboard size={19} /> Dashboard</Link>
+                </section>
+              )}
+            </nav>
+          </aside>
         </div>
       )}
 
